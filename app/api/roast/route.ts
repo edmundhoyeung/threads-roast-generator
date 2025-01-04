@@ -50,6 +50,7 @@ export async function POST(request: Request) {
     // Run the Apify Threads Scraper
     const input = {
       urls: [`https://www.threads.net/@${accountName}`], // Use the correct input format
+      maxPosts: 5, // Limit the number of posts to scrape
     };
 
     const run = await apifyClient
