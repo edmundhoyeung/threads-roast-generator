@@ -17,11 +17,22 @@ const apifyClient = new ApifyClient({
 });
 
 // Helper function to validate the structure of the scraped data
-function isThreadsProfile(data: any): data is ThreadsProfile {
+function isThreadsProfile(data: unknown): data is ThreadsProfile {
   return (
+    typeof data === "object" &&
+    data !== null &&
+    "bio" in data &&
     typeof data.bio === "string" &&
+    "posts" in data &&
     Array.isArray(data.posts) &&
-    data.posts.every((post: any) => typeof post.text === "string")
+    data.posts.every((post: unknown) => {
+      return (
+        typeof post === "object" &&
+        post !== null &&
+        "text" in post &&
+        typeof post.text === "string"
+      );
+    })
   );
 }
 
