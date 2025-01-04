@@ -1,7 +1,12 @@
 "use client"; // Mark this as a Client Component
 
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+
+// Define the structure of the error response
+interface ErrorResponse {
+  message?: string;
+}
 
 export default function Home() {
   const [accountName, setAccountName] = useState<string>("");
@@ -22,8 +27,10 @@ export default function Home() {
       setRoast(response.data.roast);
     } catch (error) {
       console.error("Error:", error);
+      // Type the error as AxiosError and define the structure of the response data
+      const axiosError = error as AxiosError<ErrorResponse>;
       setError(
-        error.response?.data?.message || "Failed to generate roast. Please try again."
+        axiosError.response?.data?.message || "Failed to generate roast. Please try again."
       );
     } finally {
       setIsLoading(false);

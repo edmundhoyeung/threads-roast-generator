@@ -2,6 +2,12 @@ import { OpenAI } from "openai";
 import { ApifyClient } from "apify-client";
 import { NextResponse } from "next/server";
 
+// Define the structure of the scraped data
+interface ThreadsProfile {
+  bio: string;
+  posts: { text: string }[];
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -9,6 +15,15 @@ const openai = new OpenAI({
 const apifyClient = new ApifyClient({
   token: process.env.APIFY_API_TOKEN,
 });
+
+// Helper function to validate the structure of the scraped data
+function isThreadsProfile(data: any): data is ThreadsProfile {
+  return (
+    typeof data.bio === "string" &&
+    Array.isArray(data.posts) &&
+    data.posts.every((post: any) => typeof post.text === "string")
+  );
+}
 
 export async function POST(request: Request) {
   const { accountName } = await request.json();
@@ -40,7 +55,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const profileData = items[0];
+    // Validate the structure of the scraped data
+    if (!isThreadsProfile(items[0])) {
+      return NextResponse.json(
+        { message: "Invalid data structure returned by the scraper." },
+        { status: 500 }
+      );
+    }
+
+    // Type the scraped data
+    const profileData = items[0] as ThreadsProfile;
     const { bio, posts } = profileData;
 
     // Generate a roast using OpenAI
