@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   try {
     // Run the Apify Threads Scraper
     const input = {
-      username: [accountName],
+      urls: [`https://www.threads.net/@${accountName}`], // Use the correct input format
     };
 
     const run = await apifyClient
